@@ -21,8 +21,10 @@ with open('Housing.csv', mode='r', newline='') as file:
     for row in reader:
         houses.append(House(price=row['price'], area=row['area'], bedrooms=row['bedrooms']))
 
+houses = houses
+
 m = len(houses)
-n = 2
+n = 3
 
 teta = np.zeros(n)
 x = np.zeros((len(houses), n))
@@ -31,9 +33,9 @@ for i in range(m):
     y[i] = houses[i].price
 
 for i in range(m):
-    x[i] = [1, houses[i].area] #, house.bedrooms]
+    x[i] = [1, houses[i].area, houses[i].bedrooms]
 
-alpha = 0.00000000002
+alpha = 0.0000000001
 
 def h(i):
     _h = 0
@@ -61,22 +63,46 @@ def new_y():
 axis_x = np.zeros((m, 1))
 for i in range(m):
     axis_x[i] = x[i][1]
-#T = np.array([6, 7, 8, 9, 10, 11, 12])
-#power = np.array([1.53E+03, 5.92E+02, 2.04E+02, 7.24E+01, 2.72E+01, 1.10E+01, 4.70E+00])
 
-plt.scatter(axis_x, y, marker="+", label="start")
-pass
+axis_y = np.zeros((m, 1))
+for i in range(m):
+    axis_y[i] = x[i][2]
 
-increment = 0
 
 def new_increment():
     new_teta()
 
-number_increment = 3
-for inc in range(number_increment):
-    new_increment()
 
-    plt.scatter(axis_x, new_y(), marker="+", label="increment_" + str(inc))
+if n == 2:
+    plt.scatter(axis_x, y, marker="+", label="start")
 
-plt.legend()
-plt.show()
+    number_increment = 10
+    for inc in range(number_increment):
+        new_increment()
+        plt.scatter(axis_x, new_y(), marker="+", label="increment_" + str(inc))
+
+    plt.legend()
+    plt.show()
+
+elif n == 3:
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    sampling = 10
+
+    ax.scatter(axis_x[::sampling], axis_y[::sampling], y[::sampling], marker='x', label="real")
+
+    number_increment = 100
+    for inc in range(number_increment):
+        new_increment()
+        #if inc == 0:
+        #    ax.scatter(axis_x[::sampling], axis_y[::sampling], new_y()[::sampling], marker='.', label="increment_" + str(inc))
+
+    ax.scatter(axis_x[::sampling], axis_y[::sampling], new_y()[::sampling], marker='.', label="increment_" + str(inc))
+
+    ax.set_xlabel('area')
+    ax.set_ylabel('bedrooms')
+    ax.set_zlabel('price')
+
+    plt.legend()
+    plt.show()
